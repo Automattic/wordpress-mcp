@@ -40,7 +40,7 @@ class McpWordPressRestApi {
 		new RegisterMcpTool(
 			array(
 				'name'        => 'wp_available_tools',
-				'description' => 'List of avaialbe WordPress REST API tools, use this to get the route and method for the tool you want to run',
+				'description' => 'List of available WordPress CRUD tools',
 				'type'        => 'read',
 				'inputSchema' => array(
 					'type'       => 'object',
@@ -54,7 +54,7 @@ class McpWordPressRestApi {
 		new RegisterMcpTool(
 			array(
 				'name'        => 'wp_tool_details',
-				'description' => 'Get details of a WordPress REST API tool',
+				'description' => 'Get details of a WordPress tool',
 				'type'        => 'read',
 				'inputSchema' => array(
 					'type'       => 'object',
@@ -73,8 +73,8 @@ class McpWordPressRestApi {
 
 		new RegisterMcpTool(
 			array(
-				'name'        => 'wp_rest_run_tool',
-				'description' => 'Run a WordPress REST API tool',
+				'name'        => 'wp_run_tool',
+				'description' => 'Run a WordPress CRUD tool',
 				'type'        => 'read',
 				'inputSchema' => array(
 					'type'       => 'object',
