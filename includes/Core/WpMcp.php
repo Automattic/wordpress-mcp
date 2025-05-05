@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Automattic\WordpressMcp\Core;
 
+use Automattic\WordpressMcp\Tools\McpPagesTools;
 use Automattic\WordpressMcp\Tools\McpPostsTools;
 use Automattic\WordpressMcp\Resources\McpGeneralSiteInfo;
 use Automattic\WordpressMcp\Tools\McpSiteInfo;
@@ -15,6 +16,7 @@ use Automattic\WordpressMcp\Resources\McpPluginInfoResource;
 use Automattic\WordpressMcp\Resources\McpThemeInfoResource;
 use Automattic\WordpressMcp\Resources\McpUserInfoResource;
 use Automattic\WordpressMcp\Resources\McpSiteSettingsResource;
+use Automattic\WordpressMcp\Tools\McpWordPressRestApi;
 use InvalidArgumentException;
 
 /**
@@ -131,11 +133,13 @@ class WpMcp {
 	 * Initialize the default tools.
 	 */
 	private function init_default_tools(): void {
-		new McpPostsTools();
-		new McpSiteInfo();
-		new McpUsersTools();
-		new McpWooProducts();
-		new McpWooOrders();
+		// new McpPostsTools();
+		// new McpPagesTools();
+		// new McpSiteInfo();
+		// new McpUsersTools();
+		// new McpWooProducts();
+		// new McpWooOrders();
+		new McpWordPressRestApi();
 	}
 
 	/**
