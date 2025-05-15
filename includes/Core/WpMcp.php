@@ -225,8 +225,8 @@ class WpMcp {
 		}
 
 		$this->tools_callbacks[ $args['name'] ] = array(
-			'callback'             => $args['callback'],
-			'permissions_callback' => $args['permissions_callback'],
+			'callback'             => $args['callback'] ?? null,
+			'permissions_callback' => $args['permissions_callback'] ?? null,
 			'rest_alias'           => $args['rest_alias'] ?? null,
 		);
 
