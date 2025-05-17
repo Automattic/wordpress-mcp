@@ -564,7 +564,7 @@ class McpToolsRegistrationTest extends WP_UnitTestCase {
 	/**
 	 * Test the tools/call endpoint with a tool that has a disabled type.
 	 */
-	public function test_call_tool_endpoint_with_disabled_type(): void {
+        public function test_call_tool_endpoint_with_disabled_type(): void {
 		// Disable create tools in settings.
 		update_option(
 			'wordpress_mcp_settings',
@@ -620,8 +620,62 @@ class McpToolsRegistrationTest extends WP_UnitTestCase {
 		// Check the response.
 		$this->assertEquals( 400, $response->get_status() );
 		$this->assertArrayHasKey( 'code', $response->get_data() );
-		$this->assertEquals( 'invalid_request', $response->get_data()['code'] );
-	}
+                $this->assertEquals( 'invalid_request', $response->get_data()['code'] );
+        }
+
+        /**
+         * Test the tools/call endpoint with a tool disabled via settings.
+         */
+        public function test_call_tool_endpoint_with_disabled_tool(): void {
+                update_option(
+                        'wordpress_mcp_settings',
+                        array(
+                                'enabled'       => true,
+                                'enabled_tools' => array(),
+                        )
+                );
+
+                add_action(
+                        'wordpress_mcp_init',
+                        function () {
+                                new RegisterMcpTool(
+                                        array(
+                                                'name'                => 'disabled_tool',
+                                                'description'         => 'A disabled tool',
+                                                'type'                => 'read',
+                                                'callback'            => function () {
+                                                        return array( 'success' => true );
+                                                },
+                                                'permission_callback' => function () {
+                                                        return current_user_can( 'manage_options' );
+                                                },
+                                                'inputSchema'         => array(
+                                                        'type'       => 'object',
+                                                        'properties' => array(),
+                                                ),
+                                        )
+                                );
+                        }
+                );
+
+                do_action( 'wordpress_mcp_init' );
+
+                $request = new WP_REST_Request( 'POST', '/wp/v2/wpmcp' );
+                $request->set_body_params(
+                        array(
+                                'method' => 'tools/call',
+                                'name'   => 'disabled_tool',
+                        )
+                );
+
+                wp_set_current_user( $this->admin_user->ID );
+
+                $response = rest_do_request( $request );
+
+                $this->assertEquals( 403, $response->get_status() );
+                $this->assertArrayHasKey( 'code', $response->get_data() );
+                $this->assertEquals( 'tool_disabled', $response->get_data()['code'] );
+        }
 
 	/**
 	 * Test the tools/call endpoint with a tool that has a non-existent REST API route.

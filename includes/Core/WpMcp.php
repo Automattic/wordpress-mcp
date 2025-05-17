@@ -214,7 +214,7 @@ class WpMcp {
 	 * @param string $type The tool type to check.
 	 * @return bool Whether the tool type is enabled.
 	 */
-	private function is_tool_type_enabled( string $type ): bool {
+        private function is_tool_type_enabled( string $type ): bool {
 
 		// Read operations are always allowed if MCP is enabled.
 		if ( 'read' === $type ) {
@@ -233,8 +233,45 @@ class WpMcp {
 			return isset( $this->mcp_settings[ $type_settings_map[ $type ] ] ) && $this->mcp_settings[ $type_settings_map[ $type ] ];
 		}
 
-		return false;
-	}
+                return false;
+        }
+
+        /**
+         * Check if a specific tool is enabled via settings.
+         *
+         * @param string $name The tool name.
+         * @return bool Whether the tool is enabled.
+         */
+        public function is_tool_enabled( string $name ): bool {
+                if ( ! isset( $this->mcp_settings['enabled_tools'] ) || ! is_array( $this->mcp_settings['enabled_tools'] ) ) {
+                        return true;
+                }
+
+                if ( empty( $this->mcp_settings['enabled_tools'] ) ) {
+                        return false;
+                }
+
+                return in_array( $name, $this->mcp_settings['enabled_tools'], true );
+        }
+
+        /**
+         * Get only tools enabled via settings.
+         *
+         * @return array
+         */
+        public function get_enabled_tools(): array {
+                if ( ! isset( $this->mcp_settings['enabled_tools'] ) || ! is_array( $this->mcp_settings['enabled_tools'] ) ) {
+                        return $this->tools;
+                }
+
+                if ( empty( $this->mcp_settings['enabled_tools'] ) ) {
+                        return array();
+                }
+
+                return array_values( array_filter( $this->tools, function ( $tool ) {
+                        return in_array( $tool['name'], $this->mcp_settings['enabled_tools'], true );
+                } ) );
+        }
 
 	/**
 	 * Register a tool.

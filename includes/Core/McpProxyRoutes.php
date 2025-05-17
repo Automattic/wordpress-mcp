@@ -178,17 +178,18 @@ class McpProxyRoutes {
 	 *
 	 * @return WP_REST_Response|WP_Error
 	 */
-	public function list_tools( array $params ): WP_Error|WP_REST_Response {
+        public function list_tools( array $params ): WP_Error|WP_REST_Response {
 
-		// Implement tool listing logic here.
-		$tools = $this->mcp->get_tools();
+                $show_all = ! empty( $params['all'] ) && current_user_can( 'manage_options' );
 
-		return rest_ensure_response(
-			array(
-				'tools' => $tools,
-			)
-		);
-	}
+                $tools = $show_all ? $this->mcp->get_tools() : $this->mcp->get_enabled_tools();
+
+                return rest_ensure_response(
+                        array(
+                                'tools' => $tools,
+                        )
+                );
+        }
 
 	/**
 	 * Call a tool
@@ -197,14 +198,22 @@ class McpProxyRoutes {
 	 *
 	 * @return WP_REST_Response|WP_Error
 	 */
-	public function call_tool( array $params ): WP_Error|WP_REST_Response {
-		if ( ! isset( $params['name'] ) ) {
-			return new WP_Error(
-				'missing_parameter',
-				'Missing required parameter: name',
-				array( 'status' => 400 )
-			);
-		}
+        public function call_tool( array $params ): WP_Error|WP_REST_Response {
+                if ( ! isset( $params['name'] ) ) {
+                        return new WP_Error(
+                                'missing_parameter',
+                                'Missing required parameter: name',
+                                array( 'status' => 400 )
+                        );
+                }
+
+                if ( ! $this->mcp->is_tool_enabled( $params['name'] ) ) {
+                        return new WP_Error(
+                                'tool_disabled',
+                                'The requested tool is disabled.',
+                                array( 'status' => 403 )
+                        );
+                }
 
 		// Implement a tool calling logic here.
 		$result = HandleToolsCall::run( $params );

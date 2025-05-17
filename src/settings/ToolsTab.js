@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { Card, CardHeader, CardBody, Spinner } from '@wordpress/components';
+import { Card, CardHeader, CardBody, Spinner, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
@@ -9,8 +9,8 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Tools Tab Component
  */
-const ToolsTab = () => {
-	const [ tools, setTools ] = useState( [] );
+const ToolsTab = ( { enabledTools, onToggleTool, mcpEnabled } ) => {
+        const [ tools, setTools ] = useState( [] );
 	const [ loading, setLoading ] = useState( true );
 	const [ error, setError ] = useState( null );
 
@@ -18,15 +18,15 @@ const ToolsTab = () => {
 		const fetchTools = async () => {
 			try {
 				setLoading( true );
-				const response = await apiFetch( {
-					path: '/wp/v2/wpmcp',
-					method: 'POST',
-					data: {
-						jsonrpc: '2.0',
-						method: 'tools/list',
-						params: {},
-					},
-				} );
+                                const response = await apiFetch( {
+                                        path: '/wp/v2/wpmcp',
+                                        method: 'POST',
+                                        data: {
+                                                jsonrpc: '2.0',
+                                                method: 'tools/list',
+                                                params: { all: true },
+                                        },
+                                } );
 
 				if ( response && response.tools ) {
 					setTools( response.tools );
@@ -77,32 +77,38 @@ const ToolsTab = () => {
 						) }
 					</p>
 				) : (
-					<table className="wordpress-mcp-table">
-						<thead>
-						<tr>
-							<th>{ __( 'Name', 'wordpress-mcp' ) }</th>
-							<th>
-								{ __( 'Description', 'wordpress-mcp' ) }
-							</th>
-							<th>{ __( 'Functionality Type', 'wordpress-mcp' ) }</th>
-						</tr>
-						</thead>
-						<tbody>
-						{ tools.map( ( tool ) => (
-							<tr key={ tool.name }>
-								<td>
-									<strong>{ tool.name }</strong>
-								</td>
-								<td>{ tool.description }</td>
-								<td>{ tool.type }</td>
-							</tr>
-						) ) }
-						</tbody>
-					</table>
-				) }
-			</CardBody>
-		</Card>
-	);
+                                        <table className="wordpress-mcp-table">
+                                                <thead>
+                                                <tr>
+                                                        <th>{ __( 'Name', 'wordpress-mcp' ) }</th>
+                                                        <th>{ __( 'Description', 'wordpress-mcp' ) }</th>
+                                                        <th>{ __( 'Functionality Type', 'wordpress-mcp' ) }</th>
+                                                        <th>{ __( 'Enabled', 'wordpress-mcp' ) }</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                { tools.map( ( tool ) => (
+                                                        <tr key={ tool.name }>
+                                                                <td>
+                                                                        <strong>{ tool.name }</strong>
+                                                                </td>
+                                                                <td>{ tool.description }</td>
+                                                                <td>{ tool.type }</td>
+                                                                <td>
+                                                                        <ToggleControl
+                                                                                checked={ Array.isArray( enabledTools ) ? enabledTools.includes( tool.name ) : true }
+                                                                                onChange={ () => onToggleTool( tool.name ) }
+                                                                                disabled={ ! mcpEnabled }
+                                                                        />
+                                                                </td>
+                                                        </tr>
+                                                ) ) }
+                                                </tbody>
+                                        </table>
+                                ) }
+                        </CardBody>
+                </Card>
+        );
 };
 
 export default ToolsTab;

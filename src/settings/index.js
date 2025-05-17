@@ -16,13 +16,14 @@ import PromptsTab from './PromptsTab';
  */
 export const SettingsApp = () => {
 	// State for settings
-	const [settings, setSettings] = useState({
-		enabled: false,
-		features_adapter_enabled: false,
-		enable_create_tools: false,
-		enable_update_tools: false,
-		enable_delete_tools: false,
-	});
+        const [settings, setSettings] = useState({
+                enabled: false,
+                features_adapter_enabled: false,
+                enable_create_tools: false,
+                enable_update_tools: false,
+                enable_delete_tools: false,
+                enabled_tools: undefined,
+        });
 
 	// State for UI
 	const [isSaving, setIsSaving] = useState(false);
@@ -50,11 +51,12 @@ export const SettingsApp = () => {
 					typeof loaded.enable_update_tools === 'boolean'
 						? loaded.enable_update_tools
 						: false,
-				enable_delete_tools:
-					typeof loaded.enable_delete_tools === 'boolean'
-						? loaded.enable_delete_tools
-						: false,
-			}));
+                                enable_delete_tools:
+                                        typeof loaded.enable_delete_tools === 'boolean'
+                                                ? loaded.enable_delete_tools
+                                                : false,
+                                enabled_tools: Array.isArray( loaded.enabled_tools ) ? loaded.enabled_tools : undefined,
+                        }));
 		}
 	}, []);
 
@@ -68,8 +70,8 @@ export const SettingsApp = () => {
 	}, []);
 
 	// Handle toggle changes
-	const handleToggleChange = (key) => {
-		const newValue = !settings[key];
+        const handleToggleChange = (key) => {
+                const newValue = !settings[key];
 
 		// Update settings state with the new value
 		setSettings((prevSettings) => {
@@ -95,8 +97,48 @@ export const SettingsApp = () => {
 			}, 500);
 
 			return updatedSettings;
-		});
-	};
+                });
+        };
+
+        const handleToolToggle = (toolName) => {
+                setSettings((prevSettings) => {
+                        const current = Array.isArray(prevSettings.enabled_tools)
+                                ? [...prevSettings.enabled_tools]
+                                : [];
+
+                        if (current.includes(toolName)) {
+                                const updated = current.filter((t) => t !== toolName);
+                                const updatedSettings = {
+                                        ...prevSettings,
+                                        enabled_tools: updated,
+                                };
+                                if (saveTimeoutRef.current) {
+                                        clearTimeout(saveTimeoutRef.current);
+                                }
+                                saveTimeoutRef.current = setTimeout(() => {
+                                        handleSaveSettingsWithData(updatedSettings);
+                                        saveTimeoutRef.current = null;
+                                }, 500);
+                                return updatedSettings;
+                        }
+
+                        const updated = [...current, toolName];
+                        const updatedSettings = {
+                                ...prevSettings,
+                                enabled_tools: updated,
+                        };
+
+                        if (saveTimeoutRef.current) {
+                                clearTimeout(saveTimeoutRef.current);
+                        }
+                        saveTimeoutRef.current = setTimeout(() => {
+                                handleSaveSettingsWithData(updatedSettings);
+                                saveTimeoutRef.current = null;
+                        }, 500);
+
+                        return updatedSettings;
+                });
+        };
 
 	// Save settings with specific data
 	const handleSaveSettingsWithData = (settingsData) => {
@@ -237,8 +279,14 @@ export const SettingsApp = () => {
 									strings={strings}
 								/>
 							);
-						case 'tools':
-							return <ToolsTab />;
+                                               case 'tools':
+                                                        return (
+                                                                <ToolsTab
+                                                                        enabledTools={settings.enabled_tools}
+                                                                        onToggleTool={handleToolToggle}
+                                                                        mcpEnabled={settings.enabled}
+                                                                />
+                                                        );
 						case 'resources':
 							return <ResourcesTab />;
 						case 'prompts':

@@ -179,11 +179,15 @@ class Settings {
 			$sanitized['enable_update_tools'] = false;
 		}
 
-		if ( isset( $input['enable_delete_tools'] ) ) {
-			$sanitized['enable_delete_tools'] = (bool) $input['enable_delete_tools'];
-		} else {
-			$sanitized['enable_delete_tools'] = false;
-		}
+                if ( isset( $input['enable_delete_tools'] ) ) {
+                        $sanitized['enable_delete_tools'] = (bool) $input['enable_delete_tools'];
+                } else {
+                        $sanitized['enable_delete_tools'] = false;
+                }
+
+                if ( isset( $input['enabled_tools'] ) ) {
+                        $sanitized['enabled_tools'] = array_map( 'sanitize_text_field', (array) $input['enabled_tools'] );
+                }
 
 		return $sanitized;
 	}
