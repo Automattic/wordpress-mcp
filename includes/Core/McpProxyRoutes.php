@@ -65,10 +65,10 @@ class McpProxyRoutes {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public function check_permission(): WP_Error|bool {
-		// Check if MCP is enabled in settings.
-		$options = get_option( 'wordpress_mcp_settings', array() );
-		$enabled = isset( $options['enabled'] ) && $options['enabled'];
+       public function check_permission( WP_REST_Request $request ): WP_Error|bool {
+               // Check if MCP is enabled in settings.
+               $options = get_option( 'wordpress_mcp_settings', array() );
+               $enabled = isset( $options['enabled'] ) && $options['enabled'];
 
 		// If MCP is disabled, deny access.
 		if ( ! $enabled ) {
@@ -79,8 +79,34 @@ class McpProxyRoutes {
 			);
 		}
 
-		return current_user_can( 'manage_options' );
-	}
+               if ( ! is_user_logged_in() ) {
+                       return new WP_Error(
+                               'rest_forbidden',
+                               __( 'You are not currently logged in.', 'wordpress-mcp' ),
+                               array( 'status' => rest_authorization_required_code() )
+                       );
+               }
+
+               $params = $request->get_json_params();
+               $method = $params['method'] ?? '';
+
+               if ( 'tools/call' === $method && isset( $params['name'] ) ) {
+                       $callbacks = $this->mcp->get_tools_callbacks();
+                       $tool_name = $params['name'];
+                       if ( isset( $callbacks[ $tool_name ]['permission_callback'] ) && is_callable( $callbacks[ $tool_name ]['permission_callback'] ) ) {
+                               $args = $params['arguments'] ?? array();
+                               if ( ! call_user_func( $callbacks[ $tool_name ]['permission_callback'], $args ) ) {
+                                       return new WP_Error(
+                                               'rest_forbidden',
+                                               __( 'You do not have permission to perform this action.', 'wordpress-mcp' ),
+                                               array( 'status' => 403 )
+                                       );
+                               }
+                       }
+               }
+
+               return true;
+       }
 
 	/**
 	 * Handle all MCP requests
@@ -178,17 +204,30 @@ class McpProxyRoutes {
 	 *
 	 * @return WP_REST_Response|WP_Error
 	 */
-	public function list_tools( array $params ): WP_Error|WP_REST_Response {
+       public function list_tools( array $params ): WP_Error|WP_REST_Response {
 
-		// Implement tool listing logic here.
-		$tools = $this->mcp->get_tools();
+               $tools            = $this->mcp->get_tools();
+               $tools_callbacks  = $this->mcp->get_tools_callbacks();
+               $filtered_tools   = array();
 
-		return rest_ensure_response(
-			array(
-				'tools' => $tools,
-			)
-		);
-	}
+               foreach ( $tools as $tool ) {
+                       $name = $tool['name'];
+                       $allowed = true;
+                       if ( isset( $tools_callbacks[ $name ]['permission_callback'] ) && is_callable( $tools_callbacks[ $name ]['permission_callback'] ) ) {
+                               $allowed = (bool) call_user_func( $tools_callbacks[ $name ]['permission_callback'], array() );
+                       }
+
+                       if ( $allowed ) {
+                               $filtered_tools[] = $tool;
+                       }
+               }
+
+               return rest_ensure_response(
+                       array(
+                               'tools' => array_values( $filtered_tools ),
+                       )
+               );
+       }
 
 	/**
 	 * Call a tool
@@ -206,8 +245,20 @@ class McpProxyRoutes {
 			);
 		}
 
-		// Implement a tool calling logic here.
-		$result = HandleToolsCall::run( $params );
+               // Implement a tool calling logic here.
+               $result = HandleToolsCall::run( $params );
+
+               if ( isset( $result['error'] ) ) {
+                       $message = $result['error']['message'] ?? __( 'Unknown error', 'wordpress-mcp' );
+                       $status  = 400;
+                       $code    = 'invalid_request';
+                       if ( str_contains( strtolower( $message ), 'permission denied' ) ) {
+                               $status = 403;
+                               $code   = 'rest_forbidden';
+                       }
+
+                       return new WP_Error( $code, $message, array( 'status' => $status ) );
+               }
 
 		$response = array(
 			'content' => array(
