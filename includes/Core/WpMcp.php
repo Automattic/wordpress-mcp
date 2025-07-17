@@ -14,6 +14,7 @@ use Automattic\WordpressMcp\Tools\McpWooProducts;
 use Automattic\WordpressMcp\Tools\McpPagesTools;
 use Automattic\WordpressMcp\Tools\McpSettingsTools;
 use Automattic\WordpressMcp\Tools\McpMediaTools;
+use Automattic\WordpressMcp\Tools\McpPluginUpdateTools;
 use Automattic\WordpressMcp\Prompts\McpGetSiteInfo as McpGetSiteInfoPrompt;
 use Automattic\WordpressMcp\Prompts\McpAnalyzeSales;
 use Automattic\WordpressMcp\Resources\McpPluginInfoResource;
@@ -191,6 +192,7 @@ class WpMcp {
 		new McpMediaTools();
 		new McpCustomPostTypesTools();
 		new McpRestApiCrud();
+		new McpPluginUpdateTools();
 	}
 
 	/**
