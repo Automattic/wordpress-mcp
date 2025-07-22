@@ -59,9 +59,10 @@ class McpStreamableTransport extends McpTransportBase {
 	/**
 	 * Check if the user has permission to access the MCP API
 	 *
+	 * @param WP_REST_Request $request The request object.
 	 * @return bool|WP_Error
 	 */
-	public function check_permission(): WP_Error|bool {
+	public function check_permission( $request = null ): WP_Error|bool {
 		// If MCP is disabled, deny access.
 		if ( ! $this->is_mcp_enabled() ) {
 			return new WP_Error(
@@ -70,8 +71,43 @@ class McpStreamableTransport extends McpTransportBase {
 				array( 'status' => 403 )
 			);
 		}
-		// check if the user is logged in.
-		return is_user_logged_in();
+
+		// Check if request is authenticated.
+		$auth_result = apply_filters( 'wpmcp_authenticate_request', null, $request );
+
+		// Also check OAuth Passport if available and no other auth method succeeded.
+		if ( empty( $auth_result ) && function_exists( 'oauth_passport_get_current_token' ) ) {
+			// OAuth Passport will handle authentication through WordPress core filters.
+			// Just check if user is logged in (OAuth Passport sets current user).
+			if ( is_user_logged_in() ) {
+				$auth_result = true;
+			}
+		}
+
+		if ( empty( $auth_result ) ) {
+			return new WP_Error(
+				'unauthorized',
+				'Authentication required',
+				array( 'status' => 401 )
+			);
+		}
+
+		// If authentication filter authenticated the user, allow access.
+		if ( true === $auth_result ) {
+			return true;
+		}
+
+		// Fall back to checking if the user is logged in (for cookie auth).
+		if ( is_user_logged_in() ) {
+			return true;
+		}
+
+		// No valid authentication found.
+		return new WP_Error(
+			'unauthorized',
+			'Authentication required. Please provide a valid JWT or OAuth token.',
+			array( 'status' => 401 )
+		);
 	}
 
 	/**
@@ -81,7 +117,7 @@ class McpStreamableTransport extends McpTransportBase {
 	 * @return WP_REST_Response
 	 */
 	public function handle_request( WP_REST_Request $request ) {
-		// Handle preflight requests
+		// Handle preflight requests.
 		if ( 'OPTIONS' === $request->get_method() ) {
 			return new WP_REST_Response( null, 204 );
 		}
