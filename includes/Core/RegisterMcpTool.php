@@ -21,8 +21,7 @@ class RegisterMcpTool {
 	 * Constructor.
 	 *
 	 * @param array $args The arguments to register the MCP tool.
-	 * @throws InvalidArgumentException When the arguments are invalid.
-	 * @throws \RuntimeException When the tool is registered outside of wordpress_mcp_init action.
+	 * @throws InvalidArgumentException|\RuntimeException When the arguments are invalid or tool is registered outside of wordpress_mcp_init action.
 	 */
 	public function __construct( array $args ) {
 		if ( ! doing_action( 'wordpress_mcp_init' ) ) {
@@ -350,8 +349,13 @@ class RegisterMcpTool {
 	 */
 	private function apply_modifications( array $input_schema, array $modifications ): array {
 
-		$modifications = array_replace_recursive( $input_schema, $modifications );
+		$result = array_replace_recursive( $input_schema, $modifications );
 
-		return $this->remove_null_recursive( $modifications );
+		// Ensure required field is always an array if it exists.
+		if ( isset( $result['required'] ) && ! is_array( $result['required'] ) ) {
+			$result['required'] = array();
+		}
+
+		return $this->remove_null_recursive( $result );
 	}
 }
