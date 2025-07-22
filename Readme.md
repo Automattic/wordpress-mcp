@@ -429,9 +429,15 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 
 ## 📚 Documentation
 
--   **API Reference**: [docs/api/](docs/api/)
--   **Architecture Guide**: [docs/architecture.md](docs/architecture.md)
--   **Security Guide**: [docs/security.md](docs/security.md)
+-   **Documentation Overview**: [docs/README.md](docs/README.md)
+-   **Client Setup Guide**: [docs/client-setup.md](docs/client-setup.md)
+-   **AI Integration Guide**: [docs/for-ai.md](docs/for-ai.md)
+-   **Registered Tools**: [docs/registered-tools.md](docs/registered-tools.md)
+-   **Registered Resources**: [docs/registered-resources.md](docs/registered-resources.md)
+-   **Registered Prompts**: [docs/registered-prompts.md](docs/registered-prompts.md)
+-   **Register MCP Tools**: [docs/register-mcp-tools.md](docs/register-mcp-tools.md)
+-   **Register MCP Prompts**: [docs/register-mcp-prompt.md](docs/register-mcp-prompt.md)
+-   **Register MCP Resources**: [docs/register-mcp-resources.md](docs/register-mcp-resources.md)
 -   **Testing Guide**: [tests/README.md](tests/README.md)
 
 ## 🆘 Support
