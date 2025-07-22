@@ -560,10 +560,21 @@ class JwtAuth {
 	 * @return mixed Authentication result.
 	 */
 	private function validate_jwt_token( string $token ) {
-		// Skip OAuth tokens (they don't have dots and often start with prefixes).
-		if ( ! str_contains( $token, '.' ) || str_starts_with( $token, 'access_' ) ) {
-			// Not a JWT token, skip processing to avoid logging errors.
+		// Skip OAuth tokens (they typically start with specific prefixes).
+		if ( str_starts_with( $token, 'access_' ) || str_starts_with( $token, 'oauth_' ) ) {
+			// Not a JWT token, let OAuth handle it.
 			return null;
+		}
+
+		// Check if it looks like a JWT token (has dots for header.payload.signature).
+		if ( ! str_contains( $token, '.' ) ) {
+			// Not a JWT format, return error for invalid token.
+			$this->log_auth_event( 'JWT_FORMAT_INVALID', 'Token does not match JWT format' );
+			return new WP_Error(
+				'invalid_token',
+				'Token format is invalid.',
+				array( 'status' => 403 )
+			);
 		}
 
 		try {
@@ -618,13 +629,18 @@ class JwtAuth {
 	/**
 	 * Authenticate MCP-specific requests.
 	 *
-	 * @param mixed           $result Current authentication result.
-	 * @param WP_REST_Request $request The request object.
+	 * @param mixed                $result Current authentication result.
+	 * @param WP_REST_Request|null $request The request object.
 	 * @return mixed Authentication result.
 	 */
-	public function authenticate_mcp_request( $result, WP_REST_Request $request ) {
+	public function authenticate_mcp_request( $result, ?WP_REST_Request $request ) {
 		// If already authenticated, return early.
 		if ( ! empty( $result ) ) {
+			return $result;
+		}
+
+		// If no request object, we can't authenticate via JWT.
+		if ( null === $request ) {
 			return $result;
 		}
 
@@ -640,9 +656,15 @@ class JwtAuth {
 
 		$token = $matches[1];
 
-		// Skip OAuth tokens (they don't have dots and often start with prefixes).
-		if ( ! str_contains( $token, '.' ) || str_starts_with( $token, 'access_' ) ) {
+		// Skip OAuth tokens (they typically start with specific prefixes).
+		if ( str_starts_with( $token, 'access_' ) || str_starts_with( $token, 'oauth_' ) ) {
 			// Not a JWT token, let OAuth handle it.
+			return $result;
+		}
+
+		// Check if it looks like a JWT token (has dots for header.payload.signature).
+		if ( ! str_contains( $token, '.' ) ) {
+			// Not a JWT format, but we're in MCP context so we should try to validate.
 			return $result;
 		}
 
