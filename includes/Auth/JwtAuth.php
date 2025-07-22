@@ -117,6 +117,8 @@ class JwtAuth {
 	public function __construct() {
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 		add_filter( 'rest_authentication_errors', array( $this, 'authenticate_request' ) );
+		// Also hook into MCP-specific authentication filter.
+		add_filter( 'wpmcp_authenticate_request', array( $this, 'authenticate_mcp_request' ), 5, 2 );
 	}
 
 	/**
@@ -449,8 +451,8 @@ class JwtAuth {
 	 * @return bool
 	 */
 	private function is_valid_cookie_auth(): bool {
-		// Only allow cookie auth for logged-in users with manage_options capability
-		// This provides a secure fallback for admin users
+		// Only allow cookie auth for logged-in users with manage_options capability.
+		// This provides a secure fallback for admin users.
 		return is_user_logged_in() && current_user_can( 'manage_options' );
 	}
 
@@ -461,15 +463,15 @@ class JwtAuth {
 	 * @param string $details Event details.
 	 */
 	private function log_auth_event( string $event, string $details ): void {
-		// Only log if WP_DEBUG is enabled to avoid filling logs in production
+		// Only log if WP_DEBUG is enabled to avoid filling logs in production.
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			// Use error_log for better performance than custom logging
+			// Use error_log for better performance than custom logging.
 			$log_message = sprintf(
 				'[WPMCP JWT Auth] %s: %s (IP: %s, URI: %s)',
 				$event,
 				$details,
-				$_SERVER['REMOTE_ADDR'] ?? 'unknown',
-				$_SERVER['REQUEST_URI'] ?? 'unknown'
+				isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : 'unknown',
+				isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : 'unknown'
 			);
 			error_log( $log_message );
 		}
@@ -558,6 +560,12 @@ class JwtAuth {
 	 * @return mixed Authentication result.
 	 */
 	private function validate_jwt_token( string $token ) {
+		// Skip OAuth tokens (they don't have dots and often start with prefixes).
+		if ( ! str_contains( $token, '.' ) || str_starts_with( $token, 'access_' ) ) {
+			// Not a JWT token, skip processing to avoid logging errors.
+			return null;
+		}
+
 		try {
 			$decoded = JWT::decode( $token, new Key( $this->get_jwt_secret_key(), 'HS256' ) );
 
@@ -604,6 +612,66 @@ class JwtAuth {
 				'Token validation failed: ' . $e->getMessage(),
 				array( 'status' => 403 )
 			);
+		}
+	}
+
+	/**
+	 * Authenticate MCP-specific requests.
+	 *
+	 * @param mixed           $result Current authentication result.
+	 * @param WP_REST_Request $request The request object.
+	 * @return mixed Authentication result.
+	 */
+	public function authenticate_mcp_request( $result, WP_REST_Request $request ) {
+		// If already authenticated, return early.
+		if ( ! empty( $result ) ) {
+			return $result;
+		}
+
+		$auth = $request->get_header( 'authorization' );
+		if ( empty( $auth ) ) {
+			return $result;
+		}
+
+		// Extract Bearer token.
+		if ( ! preg_match( '/Bearer\s+(.+)/i', $auth, $matches ) ) {
+			return $result;
+		}
+
+		$token = $matches[1];
+
+		// Skip OAuth tokens (they don't have dots and often start with prefixes).
+		if ( ! str_contains( $token, '.' ) || str_starts_with( $token, 'access_' ) ) {
+			// Not a JWT token, let OAuth handle it.
+			return $result;
+		}
+
+		// Try to validate as JWT.
+		try {
+			$decoded = JWT::decode( $token, new Key( $this->get_jwt_secret_key(), 'HS256' ) );
+
+			// Validate token ID.
+			if ( ! isset( $decoded->jti ) || ! $this->is_token_valid( $decoded->jti ) ) {
+				return $result;
+			}
+
+			// Validate user.
+			if ( ! isset( $decoded->user_id ) ) {
+				return $result;
+			}
+
+			$user = get_user_by( 'id', $decoded->user_id );
+			if ( ! $user ) {
+				return $result;
+			}
+
+			// Set current user.
+			wp_set_current_user( $user->ID );
+			return true;
+
+		} catch ( Exception $e ) {
+			// Not a valid JWT, let other authenticators try.
+			return $result;
 		}
 	}
 }
