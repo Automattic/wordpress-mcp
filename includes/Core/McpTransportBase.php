@@ -67,7 +67,7 @@ abstract class McpTransportBase {
 	public function __construct( WpMcp $mcp ) {
 		$this->mcp = $mcp;
 
-		// Initialize handlers
+		// Initialize handlers.
 		$this->initialize_handler = new InitializeHandler();
 		$this->tools_handler      = new ToolsHandler( $mcp );
 		$this->resources_handler  = new ResourcesHandler( $mcp );
@@ -143,7 +143,7 @@ abstract class McpTransportBase {
 	private function handle_prompt_get( array $params ): array {
 		$result = $this->prompts_handler->get_prompt( $params );
 
-		// Handle the nested result structure from the handler
+		// Handle the nested result structure from the handler.
 		if ( isset( $result['result'] ) ) {
 			return $result['result'];
 		}
