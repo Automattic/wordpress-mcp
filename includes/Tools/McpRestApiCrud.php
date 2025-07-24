@@ -50,8 +50,6 @@ class McpRestApiCrud {
 				'type'                => 'read',
 				'inputSchema'         => array(
 					'type'       => 'object',
-					'properties' => new \stdClass(),
-					'required'   => new \stdClass(),
 				),
 				'callback'            => array( $this, 'get_available_tools' ),
 				'permission_callback' => '__return_true',
