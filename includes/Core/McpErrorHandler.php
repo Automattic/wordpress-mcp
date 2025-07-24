@@ -155,11 +155,11 @@ class McpErrorHandler {
 	 * Create a resource not found error response.
 	 *
 	 * @param int    $id The request ID.
-	 * @param string $resource The resource identifier.
+	 * @param string $resource_id The resource identifier.
 	 * @return array
 	 */
-	public static function resource_not_found( int $id, string $resource ): array {
-		return self::create_error_response( $id, self::RESOURCE_NOT_FOUND, "Resource not found: {$resource}" );
+	public static function resource_not_found( int $id, string $resource_id ): array {
+		return self::create_error_response( $id, self::RESOURCE_NOT_FOUND, "Resource not found: {$resource_id}" );
 	}
 
 	/**
