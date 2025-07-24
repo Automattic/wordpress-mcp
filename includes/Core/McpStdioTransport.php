@@ -87,10 +87,10 @@ class McpStdioTransport extends McpTransportBase {
 		$method = $message['method'];
 		$params = $message['params'] ?? $message; // backward compatibility with the old request format.
 
-		// Route the request using the base class
+		// Route the request using the base class.
 		$result = $this->route_request( $method, $params );
 
-		// Check if the result contains an error
+		// Check if the result contains an error.
 		if ( isset( $result['error'] ) ) {
 			return $this->format_error_response( $result );
 		}
