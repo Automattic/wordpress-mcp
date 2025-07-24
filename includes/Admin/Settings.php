@@ -117,23 +117,25 @@ class Settings {
 				'featureApiAvailable' => $this->is_feature_api_available(),
 				'pluginUrl'           => WORDPRESS_MCP_URL,
 				'strings'             => array(
-					'enableMcp'                        => __( 'Enable MCP functionality', 'wordpress-mcp' ),
-					'enableMcpDescription'             => __( 'Toggle to enable or disable the MCP plugin functionality.', 'wordpress-mcp' ),
-					'enableFeaturesAdapter'            => __( 'Enable WordPress Features Adapter', 'wordpress-mcp' ),
-					'enableFeaturesAdapterDescription' => __( 'Enable or disable the WordPress Features Adapter. This option only works when MCP is enabled.', 'wordpress-mcp' ),
-					'enableCreateTools'                => __( 'Enable Create Tools', 'wordpress-mcp' ),
-					'enableCreateToolsDescription'     => __( 'Allow create operations via tools.', 'wordpress-mcp' ),
-					'enableUpdateTools'                => __( 'Enable Update Tools', 'wordpress-mcp' ),
-					'enableUpdateToolsDescription'     => __( 'Allow update operations via tools.', 'wordpress-mcp' ),
-					'enableDeleteTools'                => __( 'Enable Delete Tools', 'wordpress-mcp' ),
-					'enableDeleteToolsDescription'     => __( '⚠️ CAUTION: Allow deletion operations via tools.', 'wordpress-mcp' ),
-					'enableRestApiCrudTools'           => __( '🧪 Enable REST API CRUD Tools (EXPERIMENTAL)', 'wordpress-mcp' ),
+					'enableMcp'                         => __( 'Enable MCP functionality', 'wordpress-mcp' ),
+					'enableMcpDescription'              => __( 'Toggle to enable or disable the MCP plugin functionality.', 'wordpress-mcp' ),
+					'enableFeaturesAdapter'             => __( 'Enable WordPress Features Adapter', 'wordpress-mcp' ),
+					'enableFeaturesAdapterDescription'  => __( 'Enable or disable the WordPress Features Adapter. This option only works when MCP is enabled.', 'wordpress-mcp' ),
+					'enableCreateTools'                 => __( 'Enable Create Tools', 'wordpress-mcp' ),
+					'enableCreateToolsDescription'      => __( 'Allow create operations via tools.', 'wordpress-mcp' ),
+					'enableUpdateTools'                 => __( 'Enable Update Tools', 'wordpress-mcp' ),
+					'enableUpdateToolsDescription'      => __( 'Allow update operations via tools.', 'wordpress-mcp' ),
+					'enableDeleteTools'                 => __( 'Enable Delete Tools', 'wordpress-mcp' ),
+					'enableDeleteToolsDescription'      => __( '⚠️ CAUTION: Allow deletion operations via tools.', 'wordpress-mcp' ),
+					'enableRestApiCrudTools'            => __( '🧪 Enable REST API CRUD Tools (EXPERIMENTAL)', 'wordpress-mcp' ),
 					'enableRestApiCrudToolsDescription' => __( '⚠️ EXPERIMENTAL FEATURE: Enable or disable the generic REST API CRUD tools for accessing WordPress endpoints. This is experimental functionality that may change or be removed in future versions. When enabled, all tools that are a rest_alias or have the disabled_by_rest_crud flag will be disabled.', 'wordpress-mcp' ),
-					'saveSettings'                     => __( 'Save Settings', 'wordpress-mcp' ),
-					'settingsSaved'                    => __( 'Settings saved successfully!', 'wordpress-mcp' ),
-					'settingsError'                    => __( 'Error saving settings. Please try again.', 'wordpress-mcp' ),
-					'toolEnabled'                      => __( 'Tool %1$s has been %2$s.', 'wordpress-mcp' ),
-					'toolDisabled'                     => __( 'Tool %1$s has been %2$s.', 'wordpress-mcp' ),
+					'saveSettings'                      => __( 'Save Settings', 'wordpress-mcp' ),
+					'settingsSaved'                     => __( 'Settings saved successfully!', 'wordpress-mcp' ),
+					'settingsError'                     => __( 'Error saving settings. Please try again.', 'wordpress-mcp' ),
+					// translators: %1$s: tool name, %2$s: action (enabled/disabled).
+					'toolEnabled'                       => __( 'Tool %1$s has been %2$s.', 'wordpress-mcp' ),
+					// translators: %1$s: tool name, %2$s: action (enabled/disabled).
+					'toolDisabled'                      => __( 'Tool %1$s has been %2$s.', 'wordpress-mcp' ),
 				),
 			)
 		);
@@ -249,7 +251,7 @@ class Settings {
 		}
 
 		$tool_name = isset( $_POST['tool'] ) ? sanitize_text_field( wp_unslash( $_POST['tool'] ) ) : '';
-		$enabled   = isset( $_POST['tool_enabled'] ) ? filter_var( $_POST['tool_enabled'], FILTER_VALIDATE_BOOLEAN ) : false;
+		$enabled   = isset( $_POST['tool_enabled'] ) ? filter_var( wp_unslash( $_POST['tool_enabled'] ), FILTER_VALIDATE_BOOLEAN ) : false;
 
 		if ( empty( $tool_name ) ) {
 			wp_send_json_error( array( 'message' => __( 'Tool name is required.', 'wordpress-mcp' ) ) );
@@ -264,6 +266,7 @@ class Settings {
 		wp_send_json_success(
 			array(
 				'message' => sprintf(
+					// translators: %1$s: tool name, %2$s: action (enabled/disabled).
 					__( 'Tool %1$s has been %2$s.', 'wordpress-mcp' ),
 					$tool_name,
 					$enabled ? __( 'enabled', 'wordpress-mcp' ) : __( 'disabled', 'wordpress-mcp' )

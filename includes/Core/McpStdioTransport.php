@@ -79,18 +79,18 @@ class McpStdioTransport extends McpTransportBase {
 		if ( empty( $message ) || ! isset( $message['method'] ) ) {
 			return new WP_Error(
 				'invalid_request',
-				'Invalid request: method parameter is required [DEBUG: message=' . wp_json_encode($message) . ']',
+				'Invalid request: method parameter is required [DEBUG: message=' . wp_json_encode( $message ) . ']',
 				array( 'status' => 400 )
 			);
 		}
-		
+
 		$method = $message['method'];
 		$params = $message['params'] ?? $message; // backward compatibility with the old request format.
 
-		// Route the request using the base class
+		// Route the request using the base class.
 		$result = $this->route_request( $method, $params );
-		
-		// Check if the result contains an error
+
+		// Check if the result contains an error.
 		if ( isset( $result['error'] ) ) {
 			return $this->format_error_response( $result );
 		}
@@ -152,10 +152,10 @@ class McpStdioTransport extends McpTransportBase {
 	 */
 	protected function format_error_response( array $error, int $request_id = 0 ): WP_Error {
 		$error_details = $error['error'] ?? $error;
-		
+
 		return new WP_Error(
 			$error_details['code'] ?? 'handler_error',
-			($error_details['message'] ?? 'Handler error occurred') . ' [DEBUG: ' . wp_json_encode($error_details) . ']',
+			( $error_details['message'] ?? 'Handler error occurred' ) . ' [DEBUG: ' . wp_json_encode( $error_details ) . ']',
 			array( 'status' => $error_details['data']['status'] ?? 500 )
 		);
 	}

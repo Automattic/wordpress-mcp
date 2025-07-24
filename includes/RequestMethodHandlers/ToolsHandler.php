@@ -45,10 +45,9 @@ class ToolsHandler {
 	/**
 	 * Handle the tools/list/all request.
 	 *
-	 * @param array $params Request parameters.
 	 * @return array
 	 */
-	public function list_all_tools( array $params ): array {
+	public function list_all_tools(): array {
 		// Return all tools with additional details.
 		$tools = $this->mcp->get_tools();
 
@@ -91,9 +90,9 @@ class ToolsHandler {
 			// Implement a tool calling logic here.
 			$result = HandleToolsCall::run( $request_params );
 
-			// Check if the result contains an error
+			// Check if the result contains an error.
 			if ( isset( $result['error'] ) ) {
-				return $result; // Return error directly
+				return $result; // Return error directly.
 			}
 
 			$response = array(
@@ -116,7 +115,6 @@ class ToolsHandler {
 			}
 
 			return $response;
-
 		} catch ( \Throwable $exception ) {
 			McpErrorHandler::log_error(
 				'Error calling tool',

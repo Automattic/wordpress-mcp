@@ -93,7 +93,6 @@ class RegisterMcpTool {
 		);
 
 		foreach ( $rest_api['args'] as $arg_name => $arg_schema ) {
-
 			if ( ! preg_match( '/^[a-zA-Z0-9_-]{1,64}$/', $arg_name ) ) {
 				// log the invalid parameter name.
 				McpErrorHandler::log_error( 'Invalid parameter name: ' . $arg_name . ' in ' . $route . ' ' . $method . '. The parameter was skipped.' );
@@ -279,45 +278,65 @@ class RegisterMcpTool {
 			throw new InvalidArgumentException( esc_html__( 'The input schema must be an object type.', 'wordpress-mcp' ) );
 		}
 
-		// Validate properties field exists and is an object.
-		// If ( ! isset( $this->args['inputSchema']['properties'] ) || ! is_array($this->args['inputSchema']['properties'] ) ) {
-		// throw new \InvalidArgumentException( esc_html__( 'The input schema must have a properties field that is an object.', 'wordpress-mcp' ) );
-		// }.
-
-		// Validate each property has a type.
-		foreach ( $this->args['inputSchema']['properties'] as $property_name => $property ) {
-			if ( ! isset( $property['type'] ) ) {
-				// translators: %s: Property name.
-				throw new InvalidArgumentException( sprintf( esc_html__( "Property '%s' must have a type field.", 'wordpress-mcp' ), esc_html( $property_name ) ) );
+		// Validate properties field if present (it's optional according to MCP spec).
+		if ( isset( $this->args['inputSchema']['properties'] ) ) {
+			if ( ! is_array( $this->args['inputSchema']['properties'] ) && ! is_object( $this->args['inputSchema']['properties'] ) ) {
+				throw new InvalidArgumentException( esc_html__( 'The input schema properties field must be an array or an object.', 'wordpress-mcp' ) );
 			}
 
-			// Validate property type is a valid JSON Schema type.
-			$valid_types = array( 'string', 'number', 'integer', 'boolean', 'array', 'object', 'null' );
-			if ( ! in_array( $property['type'], $valid_types, true ) ) {
-				// translators: 1: Property name, 2: Property type.
-				throw new InvalidArgumentException( sprintf( esc_html__( "Property '%1\$s' has invalid type '%2\$s'.", 'wordpress-mcp' ), esc_html( $property_name ), esc_html( $property['type'] ) ) );
-			}
+			// Validate each property has a type.
+			foreach ( $this->args['inputSchema']['properties'] as $property_name => $property ) {
+				// Validate property name format matches MCP requirements.
+				if ( ! preg_match( '/^[a-zA-Z0-9_-]{1,64}$/', $property_name ) ) {
+					// translators: %s: Property name.
+					throw new InvalidArgumentException( sprintf( esc_html__( "Property name '%s' must match pattern '^[a-zA-Z0-9_-]{1,64}$'.", 'wordpress-mcp' ), esc_html( $property_name ) ) );
+				}
 
-			// If the type is array, the validate items field exists.
-			if ( 'array' === $property['type'] && ! isset( $property['items'] ) ) {
-				// translators: %s: Property name.
-				throw new InvalidArgumentException( sprintf( esc_html__( "Array property '%s' must have an items field.", 'wordpress-mcp' ), esc_html( $property_name ) ) );
+				if ( ! isset( $property['type'] ) ) {
+					// translators: %s: Property name.
+					throw new InvalidArgumentException( sprintf( esc_html__( "Property '%s' must have a type field.", 'wordpress-mcp' ), esc_html( $property_name ) ) );
+				}
+
+				// Validate property type is a valid JSON Schema type.
+				$valid_types = array( 'string', 'number', 'integer', 'boolean', 'array', 'object', 'null' );
+				if ( ! in_array( $property['type'], $valid_types, true ) ) {
+					// translators: 1: Property name, 2: Property type.
+					throw new InvalidArgumentException( sprintf( esc_html__( "Property '%1\$s' has invalid type '%2\$s'.", 'wordpress-mcp' ), esc_html( $property_name ), esc_html( $property['type'] ) ) );
+				}
+
+				// If the type is array, validate that items field exists.
+				if ( 'array' === $property['type'] && ! isset( $property['items'] ) ) {
+					// translators: %s: Property name.
+					throw new InvalidArgumentException( sprintf( esc_html__( "Array property '%s' must have an items field.", 'wordpress-mcp' ), esc_html( $property_name ) ) );
+				}
 			}
 		}
 
-		// Validate the required field if present.
+		// Validate the required field if present (it's optional according to MCP spec).
 		if ( isset( $this->args['inputSchema']['required'] ) ) {
 			// Ensure required field is an array.
 			if ( ! is_array( $this->args['inputSchema']['required'] ) ) {
 				throw new InvalidArgumentException( esc_html__( 'The required field must be an array.', 'wordpress-mcp' ) );
 			}
 
-			// Check all required properties exist in properties.
+			// Validate required field values are non-empty strings.
 			foreach ( $this->args['inputSchema']['required'] as $required_property ) {
-				if ( ! isset( $this->args['inputSchema']['properties'][ $required_property ] ) ) {
-					// translators: %s: Required property.
-					throw new InvalidArgumentException( sprintf( esc_html__( "Required property '%s' does not exist in properties.", 'wordpress-mcp' ), esc_html( $required_property ) ) );
+				if ( ! is_string( $required_property ) || empty( $required_property ) ) {
+					throw new InvalidArgumentException( esc_html__( 'Required field names must be non-empty strings.', 'wordpress-mcp' ) );
 				}
+			}
+
+			// Check all required properties exist in properties (only if properties field exists).
+			if ( isset( $this->args['inputSchema']['properties'] ) ) {
+				foreach ( $this->args['inputSchema']['required'] as $required_property ) {
+					if ( ! isset( $this->args['inputSchema']['properties'][ $required_property ] ) ) {
+						// translators: %s: Required property.
+						throw new InvalidArgumentException( sprintf( esc_html__( "Required property '%s' does not exist in properties.", 'wordpress-mcp' ), esc_html( $required_property ) ) );
+					}
+				}
+			} else {
+				// If properties doesn't exist but required does, that's an error.
+				throw new InvalidArgumentException( esc_html__( 'Cannot have required fields without a properties definition.', 'wordpress-mcp' ) );
 			}
 		}
 	}
@@ -325,19 +344,19 @@ class RegisterMcpTool {
 	/**
 	 * Recursively remove all null values from an array.
 	 *
-	 * @param array $array The array to clean.
+	 * @param array $data The array to clean.
 	 * @return array The cleaned array.
 	 */
-	private function remove_null_recursive( array $array ): array {
-		foreach ( $array as $key => &$value ) {
+	private function remove_null_recursive( array $data ): array {
+		foreach ( $data as $key => &$value ) {
 			if ( is_array( $value ) ) {
 				$value = $this->remove_null_recursive( $value );
 			} elseif ( is_null( $value ) ) {
-				unset( $array[ $key ] );
+				unset( $data[ $key ] );
 			}
 		}
 		unset( $value ); // break reference.
-		return $array;
+		return $data;
 	}
 
 	/**

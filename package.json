@@ -26,6 +26,8 @@
         "format": "wp-scripts format",
         "lint:css": "wp-scripts lint-style",
         "lint:js": "wp-scripts lint-js",
+        "lint:php": "phpcs --standard=.phpcs.xml.dist --extensions=php --ignore=vendor,build,docs,node_modules,tests,_ovi",
+        "lint:php:fix": "phpcbf --standard=.phpcs.xml.dist --extensions=php --ignore=vendor,build,docs,node_modules,tests,_ovi",
         "packages-update": "wp-scripts packages-update",
         "plugin-zip": "wp-scripts plugin-zip",
         "plugin-zip:build": "composer install --no-dev && pnpm run build && pnpm run plugin-zip",

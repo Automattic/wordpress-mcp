@@ -220,7 +220,6 @@ class McpStreamableTransport extends McpTransportBase {
 			);
 
 			return new WP_REST_Response( $response_body, 200, $headers );
-
 		} catch ( \Throwable $exception ) {
 			// Handle any unexpected exceptions.
 			McpErrorHandler::log_error( 'Unexpected error in handle_post_request', array( 'exception' => $exception->getMessage() ) );

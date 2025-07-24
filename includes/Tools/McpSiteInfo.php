@@ -33,9 +33,7 @@ class McpSiteInfo {
 				'description'         => 'Provides detailed information about the WordPress site like site name, url, description, admin email, plugins, themes, users, and more',
 				'type'                => 'read',
 				'inputSchema'         => array(
-					'type'       => 'object',
-					'properties' => new stdClass(),
-					'required'   => array(),
+					'type' => 'object',
 				),
 				'callback'            => array( $this, 'get_site_info' ),
 				'permission_callback' => array( $this, 'permission_callback' ),

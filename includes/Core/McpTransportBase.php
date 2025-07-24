@@ -67,7 +67,7 @@ abstract class McpTransportBase {
 	public function __construct( WpMcp $mcp ) {
 		$this->mcp = $mcp;
 
-		// Initialize handlers
+		// Initialize handlers.
 		$this->initialize_handler = new InitializeHandler();
 		$this->tools_handler      = new ToolsHandler( $mcp );
 		$this->resources_handler  = new ResourcesHandler( $mcp );
@@ -100,10 +100,10 @@ abstract class McpTransportBase {
 				'init' => $this->initialize_handler->handle(),
 				'ping' => $this->system_handler->ping(),
 				'tools/list' => $this->tools_handler->list_tools(),
-				'tools/list/all' => $this->tools_handler->list_all_tools( $params ),
+				'tools/list/all' => $this->tools_handler->list_all_tools(),
 				'tools/call' => $this->tools_handler->call_tool( $params ),
 				'resources/list' => $this->add_cursor_compatibility( $this->resources_handler->list_resources() ),
-				'resources/templates/list' => $this->add_cursor_compatibility( $this->resources_handler->list_resource_templates( $params ) ),
+				'resources/templates/list' => $this->add_cursor_compatibility( $this->resources_handler->list_resource_templates() ),
 				'resources/read' => $this->resources_handler->read_resource( $params ),
 				'resources/subscribe' => $this->resources_handler->subscribe_resource( $params ),
 				'resources/unsubscribe' => $this->resources_handler->unsubscribe_resource( $params ),
@@ -116,7 +116,6 @@ abstract class McpTransportBase {
 			};
 
 			return $result;
-
 		} catch ( \Throwable $exception ) {
 			return $this->handle_exception( $exception, $request_id );
 		}
@@ -143,12 +142,12 @@ abstract class McpTransportBase {
 	 */
 	private function handle_prompt_get( array $params ): array {
 		$result = $this->prompts_handler->get_prompt( $params );
-		
-		// Handle the nested result structure from the handler
+
+		// Handle the nested result structure from the handler.
 		if ( isset( $result['result'] ) ) {
 			return $result['result'];
 		}
-		
+
 		return $result;
 	}
 
@@ -194,4 +193,4 @@ abstract class McpTransportBase {
 	 * @return bool|WP_Error
 	 */
 	abstract public function check_permission(): WP_Error|bool;
-} 
+}

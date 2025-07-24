@@ -76,7 +76,11 @@ class McpUsersTools {
 					'method'                  => 'POST',
 					'inputSchemaReplacements' => array(
 						'properties' => array(
-							'locale' => null,
+							'locale'  => null,
+							'context' => array(
+								'type' => 'string',
+								'enum' => array( 'edit' ),
+							),
 						),
 						'required'   => array(
 							'context',

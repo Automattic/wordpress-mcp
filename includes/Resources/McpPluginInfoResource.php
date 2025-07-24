@@ -53,11 +53,9 @@ class McpPluginInfoResource {
 	/**
 	 * Get information about active plugins.
 	 *
-	 * @param array $params Optional parameters to filter the response.
-	 *
 	 * @return array
 	 */
-	public function get_plugin_info( array $params = array() ): array {
+	public function get_plugin_info(): array {
 		// Return all plugin information without filtering.
 		return $this->plugins_info->get_plugins_info();
 	}

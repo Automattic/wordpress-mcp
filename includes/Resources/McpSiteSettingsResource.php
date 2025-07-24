@@ -44,11 +44,9 @@ class McpSiteSettingsResource {
 	/**
 	 * Get information about WordPress site settings.
 	 *
-	 * @param array $params Optional parameters to filter the response.
-	 *
 	 * @return array
 	 */
-	public function get_site_settings( array $params = array() ): array {
+	public function get_site_settings(): array {
 		// Get general settings.
 		$general_settings = $this->get_general_settings();
 

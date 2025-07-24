@@ -19,7 +19,7 @@ class SystemHandler {
 	 * @return array
 	 */
 	public function ping(): array {
-		// According to MCP specification, ping returns an empty result
+		// According to MCP specification, ping returns an empty result.
 		return array();
 	}
 

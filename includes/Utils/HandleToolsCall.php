@@ -140,9 +140,9 @@ class HandleToolsCall {
 				if ( ! $permission_result ) {
 					return array(
 						'error' => array(
-							'code' => 'rest_forbidden',
+							'code'    => 'rest_forbidden',
 							'message' => 'Permission denied',
-							'data' => array( 'status' => 403 )
+							'data'    => array( 'status' => 403 ),
 						),
 					);
 				}

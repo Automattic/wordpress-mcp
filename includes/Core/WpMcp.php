@@ -262,19 +262,19 @@ class WpMcp {
 		$is_tool_type_enabled = $this->is_tool_type_enabled( $args['type'] );
 		$is_tool_enabled      = $this->is_tool_enabled( $args['name'] );
 
-		// Check if REST API CRUD tools are enabled and this tool should be disabled
+		// Check if REST API CRUD tools are enabled and this tool should be disabled.
 		$is_rest_api_crud_enabled = ! empty( $this->mcp_settings['enable_rest_api_crud_tools'] );
-		$has_rest_alias = ! empty( $args['rest_alias'] );
-		$has_disabled_flag = ! empty( $args['disabled_by_rest_crud'] );
+		$has_rest_alias           = ! empty( $args['rest_alias'] );
+		$has_disabled_flag        = ! empty( $args['disabled_by_rest_crud'] );
 		$is_disabled_by_rest_crud = $is_rest_api_crud_enabled && ( $has_rest_alias || $has_disabled_flag );
 
-		$args['tool_type_enabled'] = $is_tool_type_enabled;
-		$args['tool_enabled']      = $is_tool_enabled;
+		$args['tool_type_enabled']     = $is_tool_type_enabled;
+		$args['tool_enabled']          = $is_tool_enabled;
 		$args['disabled_by_rest_crud'] = $is_disabled_by_rest_crud;
 
 		$this->all_tools[] = $args;
 
-		// Skip actual registration if disabled by REST CRUD setting
+		// Skip actual registration if disabled by REST CRUD setting.
 		if ( $is_disabled_by_rest_crud ) {
 			return;
 		}

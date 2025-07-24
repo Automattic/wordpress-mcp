@@ -70,10 +70,9 @@ class ResourcesHandler {
 	/**
 	 * Handle the resources/templates/list request.
 	 *
-	 * @param array $params Request parameters.
 	 * @return array
 	 */
-	public function list_resource_templates( array $params ): array {
+	public function list_resource_templates(): array {
 		$permission_error = $this->check_permission();
 		if ( $permission_error ) {
 			return $permission_error;

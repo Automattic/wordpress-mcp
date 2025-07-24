@@ -29,8 +29,7 @@ class RegisterMcpPrompt {
 	 *
 	 * @param array $prompt The prompt instance.
 	 * @param array $messages The messages instance.
-	 * @throws InvalidArgumentException When the prompt is invalid.
-	 * @throws \RuntimeException When the prompt is registered outside of wordpress_mcp_init action.
+	 * @throws InvalidArgumentException|\RuntimeException When the prompt is invalid or registered outside of wordpress_mcp_init action.
 	 */
 	public function __construct( array $prompt, array $messages ) {
 		if ( ! doing_action( 'wordpress_mcp_init' ) ) {

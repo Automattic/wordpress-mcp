@@ -15,11 +15,9 @@ class ActiveThemeInfo {
 	/**
 	 * Get information about the active theme.
 	 *
-	 * @param array $params Optional parameters to filter the response.
-	 *
 	 * @return array
 	 */
-	public static function get_theme_info( array $params = array() ): array {
+	public static function get_theme_info(): array {
 		$active_theme = wp_get_theme();
 		$parent_theme = $active_theme->parent() ? wp_get_theme( $active_theme->get_template() ) : null;
 

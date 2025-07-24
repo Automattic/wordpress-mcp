@@ -9,6 +9,7 @@
 declare(strict_types=1);
 namespace Automattic\WordpressMcp\Auth;
 
+use Automattic\WordpressMcp\Core\McpErrorHandler;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use WP_Error;
@@ -328,10 +329,9 @@ class JwtAuth {
 	/**
 	 * List all active tokens.
 	 *
-	 * @param WP_REST_Request $request The request object.
-	 * @return WP_REST_Response
+	 * @return WP_REST_Response|WP_Error
 	 */
-	public function list_tokens( WP_REST_Request $request ) {
+	public function list_tokens() {
 		$registry     = get_option( self::TOKEN_REGISTRY_OPTION, array() );
 		$tokens       = array();
 		$current_time = time();
@@ -473,7 +473,7 @@ class JwtAuth {
 				isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : 'unknown',
 				isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : 'unknown'
 			);
-			error_log( $log_message );
+			McpErrorHandler::log_error( $log_message );
 		}
 	}
 
@@ -615,7 +615,6 @@ class JwtAuth {
 			$this->log_auth_event( 'JWT_AUTH_SUCCESS', "User {$user->user_login} authenticated via JWT" );
 
 			return true;
-
 		} catch ( Exception $e ) {
 			$this->log_auth_event( 'JWT_DECODE_ERROR', $e->getMessage() );
 			return new WP_Error(
@@ -690,7 +689,6 @@ class JwtAuth {
 			// Set current user.
 			wp_set_current_user( $user->ID );
 			return true;
-
 		} catch ( Exception $e ) {
 			// Not a valid JWT, let other authenticators try.
 			return $result;

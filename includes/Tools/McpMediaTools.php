@@ -331,7 +331,7 @@ class McpMediaTools {
 			}
 
 			// Decode the base64 data.
-			$file_data = base64_decode( $base64_data, true );
+			$file_data = base64_decode( $base64_data, true ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 			if ( false === $file_data ) {
 				throw new \Exception( 'Invalid base64 data.' );
 			}

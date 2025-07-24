@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "WordPress MCP Tool Extensions",
+  "description": "WordPress-specific extensions to the MCP tool specification",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": ["create", "read", "update", "delete", "action"],
+      "description": "WordPress tool type classification for CRUD operations and actions"
+    },
+    "rest_alias": {
+      "type": "object",
+      "description": "Maps the tool to a WordPress REST API endpoint",
+      "properties": {
+        "route": {
+          "type": "string",
+          "description": "The REST API route pattern (e.g., '/wp/v2/posts')"
+        },
+        "method": {
+          "type": "string",
+          "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"],
+          "description": "HTTP method for the REST API endpoint"
+        },
+        "inputSchemaReplacements": {
+          "type": "object",
+          "description": "Modifications to apply to the input schema derived from REST API",
+          "additionalProperties": true
+        },
+        "preCallback": {
+          "description": "PHP callable executed before the REST API call (string, array, or closure)"
+        }
+      },
+      "required": ["route", "method"],
+      "additionalProperties": false
+    },
+    "enabled": {
+      "type": "boolean",
+      "description": "Whether the tool is currently enabled",
+      "default": true
+    },
+    "tool_enabled": {
+      "type": "boolean", 
+      "description": "WordPress-specific tool enablement flag",
+      "default": true
+    },
+    "tool_type_enabled": {
+      "type": "boolean",
+      "description": "Whether this tool type is enabled in WordPress settings",
+      "default": true
+    },
+    "disabled_by_rest_crud": {
+      "type": "boolean",
+      "description": "Whether this tool is disabled due to REST API CRUD tools being enabled",
+      "default": false
+    },
+    "has_rest_alias": {
+      "type": "boolean",
+      "description": "Computed field indicating if the tool has a REST alias",
+      "default": false
+    },
+    "permission_callback": {
+      "description": "PHP callable for checking tool permissions (string, array, or closure)"
+    },
+    "permissions_callback": {
+      "description": "Legacy alias for permission_callback (string, array, or closure)"
+    },
+    "callback": {
+      "description": "PHP callable that implements the tool functionality (string, array, or closure)"
+    }
+  },
+  "additionalProperties": true
+}
