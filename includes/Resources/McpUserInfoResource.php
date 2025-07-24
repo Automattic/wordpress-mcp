@@ -45,11 +45,9 @@ class McpUserInfoResource {
 	/**
 	 * Get information about WordPress users.
 	 *
-	 * @param array $params Optional parameters to filter the response.
-	 *
 	 * @return array
 	 */
-	public function get_user_info( array $params = array() ): array {
+	public function get_user_info(): array {
 		return ( new UsersInfo() )->get_user_info();
 	}
 }
