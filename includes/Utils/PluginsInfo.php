@@ -50,7 +50,7 @@ class PluginsInfo {
 				'last_updated'     => $update_info['last_updated'],
 				'plugin_path'      => $plugin_path,
 				'plugin_slug'      => $plugin_slug,
-				'status'           => in_array( $plugin_path, $active_plugins ) ? 'active' : 'inactive',
+				'status'           => in_array( $plugin_path, $active_plugins, true ) ? 'active' : 'inactive',
 			);
 		}
 
