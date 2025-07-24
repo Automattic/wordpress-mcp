@@ -103,7 +103,7 @@ abstract class McpTransportBase {
 				'tools/list/all' => $this->tools_handler->list_all_tools( $params ),
 				'tools/call' => $this->tools_handler->call_tool( $params ),
 				'resources/list' => $this->add_cursor_compatibility( $this->resources_handler->list_resources() ),
-				'resources/templates/list' => $this->add_cursor_compatibility( $this->resources_handler->list_resource_templates( $params ) ),
+				'resources/templates/list' => $this->add_cursor_compatibility( $this->resources_handler->list_resource_templates() ),
 				'resources/read' => $this->resources_handler->read_resource( $params ),
 				'resources/subscribe' => $this->resources_handler->subscribe_resource( $params ),
 				'resources/unsubscribe' => $this->resources_handler->unsubscribe_resource( $params ),
