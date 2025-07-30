@@ -42,7 +42,7 @@ const DocumentationTab = () => {
 				const markdownText = await response.text();
 				
 				// Replace placeholder with actual site URL
-				const siteUrl = window.location.origin;
+				const siteUrl = window.wordpressMcpSettings.siteUrl;
 				const processedMarkdown = markdownText.replace(
 					/\{\{your-website\.com\}\}/g,
 					siteUrl
