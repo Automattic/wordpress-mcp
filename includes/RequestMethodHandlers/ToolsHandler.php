@@ -49,7 +49,7 @@ class ToolsHandler {
 	 */
 	public function list_all_tools(): array {
 		// Return all tools with additional details.
-		$tools = $this->mcp->get_tools();
+		$tools = $this->mcp->get_all_tools();
 
 		// Add any additional metadata or details.
 		foreach ( $tools as &$tool ) {
