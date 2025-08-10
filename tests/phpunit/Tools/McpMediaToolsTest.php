@@ -254,6 +254,100 @@ final class McpMediaToolsTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test the wp_upload_media tool with complete metadata.
+	 */
+	public function test_wp_upload_media_tool_with_metadata(): void {
+		// Create a test image file.
+		$test_image_path = __DIR__ . '/../../assets/test-image.jpeg';
+		$test_image_data = file_get_contents( $test_image_path );
+		$base64_data     = base64_encode( $test_image_data );
+
+		// Create a REST request.
+		$request = new WP_REST_Request( 'POST', '/wp/v2/wpmcp' );
+
+		// Set the request body as JSON with complete metadata.
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'method'    => 'tools/call',
+					'name'      => 'wp_upload_media',
+					'arguments' => array(
+						'file'        => $base64_data,
+						'title'       => 'Complete Metadata Test',
+						'caption'     => 'Test image caption',
+						'description' => 'Test image description',
+						'alt_text'    => 'Test image alt text',
+					),
+				)
+			)
+		);
+
+		// Set content type header.
+		$request->add_header( 'Content-Type', 'application/json' );
+
+		// Set the current user.
+		wp_set_current_user( $this->admin_user->ID );
+
+		// Dispatch the request.
+		$response = rest_do_request( $request );
+
+		// Get the uploaded attachment ID for cleanup.
+		$response_text_content = json_decode( $response->get_data()['content'][0]['text'], true );
+
+		// Delete image after test (avoid duplicate media).
+		if ( isset( $response_text_content['id'] ) ) {
+			wp_delete_attachment( $response_text_content['id'], true );
+		}
+
+		// Check the response.
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertArrayHasKey( 'content', $response->get_data() );
+		$this->assertIsArray( $response->get_data()['content'] );
+		$this->assertCount( 1, $response->get_data()['content'] );
+		$this->assertEquals( 'text', $response->get_data()['content'][0]['type'] );
+		
+		// Verify metadata was preserved in the response.
+		$this->assertStringContainsString( 'Complete-Metadata-Test', $response->get_data()['content'][0]['text'] );
+	}
+
+	/**
+	 * Test the wp_upload_media_pre_callback directly for multipart handling.
+	 */
+	public function test_wp_upload_media_pre_callback_multipart_format(): void {
+		$media_tools = new \Automattic\WordpressMcp\Tools\McpMediaTools();
+		
+		// Create test data.
+		$test_image_data = 'fake-image-data-for-testing';
+		$base64_data     = base64_encode( $test_image_data );
+		
+		$args = array(
+			'file'        => $base64_data,
+			'title'       => 'Test Title',
+			'alt_text'    => 'Test Alt Text',
+			'caption'     => 'Test Caption',
+			'description' => 'Test Description',
+		);
+
+		// Call the pre-callback.
+		$result = $media_tools->wp_upload_media_pre_callback( $args );
+
+		// Verify multipart structure.
+		$this->assertArrayHasKey( 'headers', $result );
+		$this->assertArrayHasKey( 'Content-Type', $result['headers'] );
+		$this->assertStringContainsString( 'multipart/form-data; boundary=', $result['headers']['Content-Type'][0] );
+		
+		$this->assertArrayHasKey( 'body', $result );
+		$this->assertStringContainsString( 'Content-Disposition: form-data; name="file"', $result['body'] );
+		$this->assertStringContainsString( 'Content-Disposition: form-data; name="title"', $result['body'] );
+		$this->assertStringContainsString( 'Content-Disposition: form-data; name="alt_text"', $result['body'] );
+		$this->assertStringContainsString( 'Content-Disposition: form-data; name="caption"', $result['body'] );
+		$this->assertStringContainsString( 'Content-Disposition: form-data; name="description"', $result['body'] );
+		
+		// Verify args are cleared.
+		$this->assertEmpty( $result['args'] );
+	}
+
+	/**
 	 * Test the wp_update_media tool.
 	 */
 	public function test_wp_update_media_tool(): void {
