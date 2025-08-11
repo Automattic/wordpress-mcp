@@ -438,6 +438,7 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 -   **Register MCP Tools**: [docs/register-mcp-tools.md](docs/register-mcp-tools.md)
 -   **Register MCP Prompts**: [docs/register-mcp-prompt.md](docs/register-mcp-prompt.md)
 -   **Register MCP Resources**: [docs/register-mcp-resources.md](docs/register-mcp-resources.md)
+-   **Troubleshooting Guide**: [docs/troubleshooting.md](docs/troubleshooting.md)
 -   **Testing Guide**: [tests/README.md](tests/README.md)
 
 ## Support
