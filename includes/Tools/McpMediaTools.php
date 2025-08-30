@@ -315,15 +315,15 @@ class McpMediaTools {
 	 */
 	public function wp_upload_media_pre_callback( $args ): array {
 		$params = array(
-			'args' => $args,
+            'args' => array(),
 		);
-		if ( ! isset( $params['args']['file'] ) ) {
-			return $params;
+		if ( ! isset( $args['file'] ) ) {
+			return array( 'args' => $args );
 		}
 
 		try {
 			// Get the base64 data.
-			$base64_data = $params['args']['file'];
+			$base64_data = $args['file'];
 
 			// Remove data URI prefix if present.
 			if ( strpos( $base64_data, 'data:' ) === 0 ) {
@@ -346,20 +346,47 @@ class McpMediaTools {
 			}
 
 			// Generate a filename based on the title or use a default.
-			$filename  = isset( $params['args']['title'] ) ? sanitize_file_name( $params['args']['title'] ) : 'upload';
+			$filename  = isset( $args['title'] ) ? sanitize_file_name( $args['title'] ) : 'upload';
 			$filename .= '.' . $this->get_extension_from_mime_type( $mime_type );
 
-			// Set up the headers for the REST API.
+			// Create multipart boundary.
+			$boundary = wp_generate_password( 24, false );
+
+			// Build multipart body with file and metadata.
+			$body_parts = array();
+
+			// Add the file part.
+			$body_parts[] = '--' . $boundary;
+			$body_parts[] = 'Content-Disposition: form-data; name="file"; filename="' . $filename . '"';
+			$body_parts[] = 'Content-Type: ' . $mime_type;
+			$body_parts[] = '';
+			$body_parts[] = $file_data;
+
+			// Add metadata fields if present.
+			$metadata_fields = array( 'title', 'caption', 'description', 'alt_text' );
+			foreach ( $metadata_fields as $field ) {
+				if ( isset( $args[ $field ] ) && ! empty( $args[ $field ] ) ) {
+					$body_parts[] = '--' . $boundary;
+					$body_parts[] = 'Content-Disposition: form-data; name="' . $field . '"';
+					$body_parts[] = '';
+					$body_parts[] = $args[ $field ];
+				}
+			}
+
+			// Close the multipart body.
+			$body_parts[] = '--' . $boundary . '--';
+			$body_parts[] = '';
+
+			// Set up the headers for multipart request.
 			$params['headers'] = array(
-				'content_type'        => array( $mime_type ),
-				'content_disposition' => array( 'attachment; filename="' . $filename . '"' ),
+				'Content-Type' => array( 'multipart/form-data; boundary=' . $boundary ),
 			);
 
-			// Set the raw file data.
-			$params['body'] = $file_data;
+			// Set the multipart body.
+			$params['body'] = implode( "\r\n", $body_parts );
 
-			// Remove the original file parameter to avoid confusion.
-			unset( $params['args']['file'] );
+			// Clear args since everything is now in the body.
+			$params['args'] = array();
 
 			return $params;
 		} catch ( \Exception $e ) {
