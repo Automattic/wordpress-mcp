@@ -1,11 +1,9 @@
 {
-  "plugins": [
-    "."
-  ],
-  "port": 8888,
-  "testsPort": 8889,
-  "config": {
-    "WP_DEBUG": true,
-    "SCRIPT_DEBUG": true
-  }
-} 
+	"plugins": [ "." ],
+	"port": 8888,
+	"testsPort": 8889,
+	"config": {
+		"WP_DEBUG": true,
+		"SCRIPT_DEBUG": true
+	}
+}
