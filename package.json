@@ -1,54 +1,55 @@
 {
-    "name": "wordpress-mcp",
-    "version": "0.2.5",
-    "description": "A plugin to integrate WordPress with Model Context Protocol (MCP), providing AI-accessible interfaces to WordPress data and functionality through standardized tools, resources, and prompts. Enables AI assistants to interact with posts, users, site settings, and WooCommerce data.",
-    "keywords": [
-        "wordpress",
-        "mcp",
-        "content",
-        "management"
-    ],
-    "homepage": "https://github.com/Automattic/wordpress-mcp",
-    "license": "GPL-2.0-or-later",
-    "author": "Automattic",
-    "main": "src/index.js",
-    "private": true,
-    "files": [
-        "build",
-        "includes",
-        "vendor",
-        "wordpress-mcp.php",
-        "docs"
-    ],
-    "scripts": {
-        "build": "wp-scripts build",
-        "start": "wp-scripts start",
-        "format": "wp-scripts format",
-        "lint:css": "wp-scripts lint-style",
-        "lint:js": "wp-scripts lint-js",
-        "lint:php": "phpcs --standard=.phpcs.xml.dist --extensions=php --ignore=vendor,build,docs,node_modules,tests,_ovi",
-        "lint:php:fix": "phpcbf --standard=.phpcs.xml.dist --extensions=php --ignore=vendor,build,docs,node_modules,tests,_ovi",
-        "packages-update": "wp-scripts packages-update",
-        "plugin-zip": "wp-scripts plugin-zip",
-        "plugin-zip:build": "composer install --no-dev && pnpm run build && pnpm run plugin-zip",
-        "clean": "rm -rf build"
-    },
-    "dependencies": {
-        "@wordpress/api-fetch": "^7.22.0",
-        "@wordpress/components": "^29.8.0",
-        "@wordpress/element": "^6.22.0",
-        "@wordpress/i18n": "^5.22.0",
-        "marked": "^15.0.12"
-    },
-    "prettier": "@wordpress/prettier-config",
-    "devDependencies": {
-        "@wordpress/dependency-extraction-webpack-plugin": "^6.22.0",
-        "@wordpress/eslint-plugin": "^22.8.0",
-        "@wordpress/prettier-config": "^4.22.0",
-        "@wordpress/scripts": "^30.15.0",
-        "eslint": "^9.25.1",
-        "eslint-import-resolver-node": "0.3.9",
-        "eslint-plugin-eslint-comments": "3.2.0",
-        "prettier": "npm:wp-prettier@3.0.3"
-    }
+	"name": "wordpress-mcp",
+	"version": "0.2.5",
+	"description": "A plugin to integrate WordPress with Model Context Protocol (MCP), providing AI-accessible interfaces to WordPress data and functionality through standardized tools, resources, and prompts. Enables AI assistants to interact with posts, users, site settings, and WooCommerce data.",
+	"keywords": [
+		"wordpress",
+		"mcp",
+		"content",
+		"management"
+	],
+	"homepage": "https://github.com/Automattic/wordpress-mcp",
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"main": "src/index.js",
+	"private": true,
+	"files": [
+		"build",
+		"includes",
+		"vendor",
+		"wordpress-mcp.php",
+		"docs"
+	],
+	"scripts": {
+		"build": "wp-scripts build",
+		"start": "wp-scripts start",
+		"format": "wp-scripts format",
+		"lint:css": "wp-scripts lint-style",
+		"lint:js": "wp-scripts lint-js",
+		"lint:php": "phpcs --standard=.phpcs.xml.dist --extensions=php --ignore=vendor,build,docs,node_modules,tests,_ovi",
+		"lint:php:fix": "phpcbf --standard=.phpcs.xml.dist --extensions=php --ignore=vendor,build,docs,node_modules,tests,_ovi",
+		"packages-update": "wp-scripts packages-update",
+		"plugin-zip": "wp-scripts plugin-zip",
+		"plugin-zip:build": "composer install --no-dev && pnpm run build && pnpm run plugin-zip",
+		"clean": "rm -rf build"
+	},
+	"dependencies": {
+		"@automattic/mcp-wordpress-remote": "^0.2.14",
+		"@wordpress/api-fetch": "^7.22.0",
+		"@wordpress/components": "^29.8.0",
+		"@wordpress/element": "^6.22.0",
+		"@wordpress/i18n": "^5.22.0",
+		"marked": "^15.0.12"
+	},
+	"prettier": "@wordpress/prettier-config",
+	"devDependencies": {
+		"@wordpress/dependency-extraction-webpack-plugin": "^6.22.0",
+		"@wordpress/eslint-plugin": "^22.8.0",
+		"@wordpress/prettier-config": "^4.22.0",
+		"@wordpress/scripts": "^30.15.0",
+		"eslint": "^9.25.1",
+		"eslint-import-resolver-node": "0.3.9",
+		"eslint-plugin-eslint-comments": "3.2.0",
+		"prettier": "npm:wp-prettier@3.0.3"
+	}
 }

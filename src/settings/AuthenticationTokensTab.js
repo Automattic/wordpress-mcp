@@ -61,7 +61,7 @@ const AuthenticationTokensTab = () => {
 				method: 'GET',
 				includeCredentials: true,
 			} );
-			
+
 			// Handle the new response format with nested data
 			if ( response.tokens ) {
 				setTokens( response.tokens );
@@ -380,13 +380,29 @@ const AuthenticationTokensTab = () => {
 					{ showCustomInput && (
 						<div className="mcp-form-field">
 							<NumberControl
-								label={ __( 'Custom Duration (Days)', 'wordpress-mcp' ) }
+								label={ __(
+									'Custom Duration (Days)',
+									'wordpress-mcp'
+								) }
 								value={ customDays }
-								onChange={ ( value ) => setCustomDays( Math.max( 1, Math.min( maxDays, parseInt( value ) || 1 ) ) ) }
+								onChange={ ( value ) =>
+									setCustomDays(
+										Math.max(
+											1,
+											Math.min(
+												maxDays,
+												parseInt( value ) || 1
+											)
+										)
+									)
+								}
 								min={ 1 }
 								max={ maxDays }
 								help={ sprintf(
-									__( 'Enter the number of days (1-%d) for token expiration', 'wordpress-mcp' ),
+									__(
+										'Enter the number of days (1-%d) for token expiration',
+										'wordpress-mcp'
+									),
 									maxDays
 								) }
 							/>

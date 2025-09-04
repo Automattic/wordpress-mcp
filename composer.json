@@ -1,30 +1,37 @@
 {
-    "name": "automattic/wordpress-mcp",
-    "description": "A plugin to integrate WordPress with Model Context Protocol (MCP), providing AI-accessible interfaces to WordPress data and functionality through standardized tools, resources, and prompts. Enables AI assistants to interact with posts, users, site settings, and WooCommerce data.",
-    "type": "wordpress-plugin",
-    "homepage": "https://github.com/Automattic/wordpress-mcp",
-    "license": "GPL-2.0-or-later",
-    "author": "Automattic AI  (https://automattic.ai)",
-    "require-dev": {
-        "phpunit/phpunit": "^9.0",
-        "yoast/phpunit-polyfills": "^1.0"
-    },
-    "config": {
-        "allow-plugins": {
-            "dealerdirect/phpcodesniffer-composer-installer": true
-        }
-    },
-    "require": {
-        "firebase/php-jwt": "^6.11"
-    },
-    "autoload": {
-        "psr-4": {
-            "Automattic\\WordpressMcp\\": "includes/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Automattic\\WordpressMcp\\Tests\\": "tests/phpunit/"
-        }
-    }
+	"name": "automattic/wordpress-mcp",
+	"description": "A plugin to integrate WordPress with Model Context Protocol (MCP), providing AI-accessible interfaces to WordPress data and functionality through standardized tools, resources, and prompts. Enables AI assistants to interact with posts, users, site settings, and WooCommerce data.",
+	"type": "wordpress-plugin",
+	"homepage": "https://github.com/Automattic/wordpress-mcp",
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic AI  (https://automattic.ai)",
+	"require-dev": {
+		"phpunit/phpunit": "^9.0",
+		"yoast/phpunit-polyfills": "^1.0"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
+	},
+	"require": {
+		"firebase/php-jwt": "^6.11",
+		"wordpress/mcp-adapter": "dev-trunk"
+	},
+	"autoload": {
+		"psr-4": {
+			"Automattic\\WordpressMcp\\": "includes/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Automattic\\WordpressMcp\\Tests\\": "tests/phpunit/"
+		}
+	},
+	"repositories": {
+		"mcp-adapter": {
+			"type": "git",
+			"url": "https://github.com/WordPress/mcp-adapter.git"
+		}
+	}
 }
