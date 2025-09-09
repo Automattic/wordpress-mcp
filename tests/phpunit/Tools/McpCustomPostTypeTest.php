@@ -1,6 +1,6 @@
 <?php
 /**
- * Test class for McpCustomPostTypesTools
+ * Test class for McpCustomPostsTools
  *
  * @package Automattic\WordpressMcp\Tests\Tools
  */
@@ -8,13 +8,13 @@
 namespace Automattic\WordpressMcp\Tests\Tools;
 
 use Automattic\WordpressMcp\Core\WpMcp;
-use Automattic\WordpressMcp\Tools\McpCustomPostTypesTools;
+use Automattic\WordpressMcp\Tools\McpCustomPostsTools;
 use WP_UnitTestCase;
 use WP_REST_Request;
 use WP_User;
 
 /**
- * Test class for McpCustomPostTypesTools
+ * Test class for McpCustomPostsTools
  */
 final class McpCustomPostTypeTest extends WP_UnitTestCase {
 
